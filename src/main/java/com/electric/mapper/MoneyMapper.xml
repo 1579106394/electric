@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.electric.mapper.MoneyMapper">
+
+    <resultMap id="Money" type="money">
+        <id column="money_id" property="moneyId"/>
+        <result column="money_time" property="moneyTime" />
+        <result column="money_money" property="moneyMoney" />
+        <association property="user" javaType="user">
+            <id column="user_id" property="userId"/>
+            <result column="username" property="username"/>
+            <result column="password" property="password"/>
+            <result column="user_name" property="userName"/>
+            <result column="user_age" property="userAge"/>
+            <result column="user_sex" property="userSex"/>
+            <result column="user_phone" property="userPhone"/>
+            <result column="user_money" property="userMoney"/>
+            <result column="user_flag" property="userFlag"/>
+        </association>
+    </resultMap>
+
+    <insert id="addMoney" parameterType="money">
+        insert into money(
+          money_user, money_time, money_money
+        ) values (
+          #{user.userId},#{moneyTime},#{moneyMoney}
+        )
+    </insert>
+
+    <select id="getListByPage" parameterType="page" resultMap="Money">
+        select * from money inner join user
+        on money_user=user_id
+        <where>
+            <if test="params!=null">
+                <if test="params.user!=null and params.user!=''">
+                    and user_id=#{params.user}
+                </if>
+                <if test="params.userName!=null and params.userName!=''">
+                    and user_name like '%${params.userName}%'
+                </if>
+            </if>
+        </where>
+        order by money_time,user_name desc
+        limit #{index},#{currentCount}
+    </select>
+
+    <select id="getCountByPage" parameterType="page" resultType="Integer">
+        select count(*) from money inner join user
+        on money_user=user_id
+        <where>
+            <if test="params!=null">
+                <if test="params.user!=null and params.user!=''">
+                    and user_id=#{params.user}
+                </if>
+                <if test="params.userName!=null and params.userName!=''">
+                    and user_name like '%${params.userName}%'
+                </if>
+            </if>
+        </where>
+    </select>
+
+    <delete id="deleteById">
+        delete from money where money_id=#{value}
+    </delete>
+
+</mapper>

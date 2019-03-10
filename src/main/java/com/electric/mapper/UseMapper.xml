@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.electric.mapper.UseMapper">
+
+    <resultMap id="Use" type="use">
+        <id column="use_id" property="useId"/>
+        <result column="use_money" property="useMoney" />
+        <result column="use_number" property="useNumber" />
+        <result column="use_time" property="useTime" />
+        <association property="user" javaType="user">
+            <id column="user_id" property="userId"/>
+            <result column="username" property="username"/>
+            <result column="password" property="password"/>
+            <result column="user_name" property="userName"/>
+            <result column="user_age" property="userAge"/>
+            <result column="user_sex" property="userSex"/>
+            <result column="user_phone" property="userPhone"/>
+            <result column="user_money" property="userMoney"/>
+            <result column="user_flag" property="userFlag"/>
+        </association>
+    </resultMap>
+
+    <insert id="addUse" parameterType="use">
+        insert into use_log
+        (use_user, use_money, use_number, use_time)
+        values (
+        #{user.userId}, #{useMoney}, #{useNumber}, #{useTime}
+        )
+    </insert>
+
+    <select id="getListByPage" parameterType="page" resultMap="Use">
+        select * from use_log
+        inner join user on use_user = user_id
+        <where>
+            <if test="params!=null">
+                <if test="params.user!=null">
+                    and use_user = #{params.user.userId}
+                </if>
+                <if test="params.useTime!=null and params.useTime!=''">
+                    and use_time = #{params.useTime}
+                </if>
+                <if test="params.userName!=null and params.userName!=''">
+                    and user_name like '%${params.userName}%'
+                </if>
+            </if>
+        </where>
+        order by use_time
+        limit #{index}, #{currentCount}
+    </select>
+
+    <select id="getCountByPage" parameterType="page" resultType="Integer">
+        select count(*) from use_log
+        inner join user on use_user = user_id
+        <where>
+            <if test="params!=null">
+                <if test="params.user!=null">
+                    and use_user = #{params.user.userId}
+                </if>
+                <if test="params.useTime!=null and params.useTime!=''">
+                    and use_time = #{params.useTime}
+                </if>
+                <if test="params.userName!=null and params.userName!=''">
+                    and user_name like '%${params.userName}%'
+                </if>
+            </if>
+        </where>
+    </select>
+
+    <delete id="deleteById">
+        delete from use_log where use_id = #{value}
+    </delete>
+
+    <select id="getByUserId" resultMap="Use">
+        select * from use_log
+        inner join user on use_user = user_id
+        where use_user = #{value}
+        order by use_time desc
+        limit 0,6
+    </select>
+
+</mapper>

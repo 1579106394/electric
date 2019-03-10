@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.electric.mapper.CommentMapper">
+
+    <resultMap id="Comment" type="comment">
+        <id column="comment_id" property="commentId"/>
+        <result column="comment_time" property="commentTime"/>
+        <result column="comment_content" property="commentContent" />
+        <association property="user" javaType="user">
+            <id column="user_id" property="userId"/>
+            <result column="username" property="username"/>
+            <result column="password" property="password"/>
+            <result column="user_age" property="userAge"/>
+            <result column="user_name" property="userName"/>
+            <result column="user_sex" property="userSex"/>
+            <result column="user_phone" property="userPhone"/>
+            <result column="user_money" property="userMoney"/>
+            <result column="user_flag" property="userFlag"/>
+        </association>
+    </resultMap>
+
+
+    <insert id="addComment" parameterType="comment">
+        insert into comment (
+        comment_user, comment_time, comment_content
+        ) values (
+        #{user.userId}, #{commentTime}, #{commentContent}
+        )
+    </insert>
+
+    <select id="getListByPage" parameterType="page" resultMap="Comment">
+        select * from comment
+        left join user on comment_user = user_id
+        <where>
+            <if test="params!=null">
+                <if test="params.userName!=null and params.userName!=''">
+                    and user_name = #{params.userName}
+                </if>
+                <if test="params.commentTime!=null and params.commentTime!=''">
+                    and comment_time like '%${params.commentTime}%'
+                </if>
+            </if>
+        </where>
+        order by comment_time desc
+        limit #{index},#{currentCount}
+    </select>
+
+    <select id="getCountByPage" parameterType="page" resultType="Integer">
+        select count(*) from comment
+        left join user on comment_user = user_id
+        <where>
+            <if test="params!=null">
+                <if test="params.userName!=null and params.userName!=''">
+                    and user_name = #{params.userName}
+                </if>
+                <if test="params.commentTime!=null and params.commentTime!=''">
+                    and comment_time like '%${params.commentTime}%'
+                </if>
+            </if>
+        </where>
+    </select>
+
+    <delete id="deleteById">
+        delete from comment where comment_id = #{value}
+    </delete>
+
+    <select id="getById" resultMap="Comment">
+        select * from comment where comment_id = #{value}
+    </select>
+
+</mapper>

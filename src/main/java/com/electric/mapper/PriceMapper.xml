@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.electric.mapper.PriceMapper">
+
+    <resultMap id="Price" type="price">
+        <id column="price_id" property="priceId"/>
+        <result column="price_money" property="priceMoney"/>
+        <result column="price_month" property="priceMonth"/>
+    </resultMap>
+
+    <select id="getByMonth" resultMap="Price">
+        select * from price where price_month=#{value}
+    </select>
+
+    <insert id="addPrice" parameterType="price">
+        insert into price (price_money, price_month) values
+        (
+        #{priceMoney}, #{priceMonth}
+        )
+    </insert>
+
+    <update id="updatePrice" parameterType="price">
+        update price set
+        price_money = #{priceMoney}
+        ,price_month = #{priceMonth}
+        where price_id = #{priceId}
+    </update>
+
+    <select id="getListByPage" parameterType="page" resultMap="Price">
+        select * from price
+        <where>
+            <if test="params!=null">
+                <if test="params.priceMonth!=null and params.priceMonth!=''">
+                    and price_month = #{params.priceMonth}
+                </if>
+            </if>
+        </where>
+        limit #{index}, #{currentCount}
+    </select>
+
+    <select id="getCountByPage" parameterType="page" resultType="Integer">
+        select count(*) from price
+        <where>
+            <if test="params!=null">
+                <if test="params.priceMonth!=null and params.priceMonth!=''">
+                    and price_month = #{params.priceMonth}
+                </if>
+            </if>
+        </where>
+    </select>
+
+</mapper>
